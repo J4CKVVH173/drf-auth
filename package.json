@@ -1,6 +1,6 @@
 {
   "name": "drf-auth",
-  "version": "0.0.1",
+  "version": "0.9.1",
   "description": "Library for user auth via the django rest framework mechanism",
   "main": "build/index.js",
   "types": "build/index.d.ts",
