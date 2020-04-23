@@ -23,8 +23,14 @@
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-typescript": "^7.9.0",
-    "babel-watch": "^7.0.0"
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-watch": "^7.0.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "communicate-api": "^1.0.1"
   }
 }
