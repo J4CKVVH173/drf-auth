@@ -3,11 +3,7 @@ import {IUserConfig} from "communicate-api/build/src/communicate";
 export abstract class Auth {
     abstract login(username: string, password: string): Promise<object>;
 
-    abstract logout(): void;
-
-    abstract setHeader(token: string): void;
-
-    abstract deleteHeader(): void;
+    abstract logout(): Promise<object>;
 
     urlGenerate(...rest: string[]): string {
         let path: string = '';
@@ -21,21 +17,4 @@ export abstract class Auth {
 
 export interface IAuthConfig extends IUserConfig {
     authPath?: string;
-}
-
-export interface ICookie {
-    setCookie(name: string, value: string | number, options?: ICookieConf): void;
-
-    getCookie(name: string): string | undefined;
-
-    deleteCookie(name: string): void;
-}
-
-export interface ICookieConf {
-    path?: string;
-    domain?: string;
-    expires?: string | Date;
-    secure?: string;
-    samesite?: string;
-    ["max-age"]?: number;
 }

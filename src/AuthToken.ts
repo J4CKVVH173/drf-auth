@@ -1,44 +1,94 @@
-import {Auth} from "./types";
-import {IUserConfig} from "communicate-api/build/src/communicate";
+import {Auth, IAuthConfig} from "./types";
 import {AxiosInstance} from 'axios';
 import Communicate from "communicate-api";
-import Cookie from "./Cookie";
 
 export default class AuthToken extends Auth {
-    private session: AxiosInstance;
+    private TOKEN = 'Token';
     readonly authPath: string;
-    readonly cookie: Cookie;
 
-    constructor(userConfig?: IUserConfig, authPath: string = 'rest-auth') {
+    session: AxiosInstance;
+
+    constructor(authConfig?: IAuthConfig) {
         super();
-        this.authPath = authPath;
-        this.session = new Communicate(userConfig).session;
-        this.cookie = new Cookie();
+        this.authPath = authConfig?.authPath || 'rest-auth';
+        this.session = new Communicate(authConfig).session;
+        // проверяем, если уже есть токен, то устанавливаем его
+        if (this.hasToken()) {
+            this.setHeader((localStorage.getItem(this.TOKEN) as string))
+        }
     }
 
+    /**
+     * Метод производит аутенфикацию пользователя по логину и паролю и при успешной атенфикации,
+     * сохраняет токен в localStorage и устанавливает в заголовок.
+     * @param username - имя пользователя
+     * @param password - пароль пользователя
+     */
     async login(username: string, password: string): Promise<object> {
         const loginPath = 'login';
         const url = this.urlGenerate(this.authPath, loginPath);
         try {
             const {data} = await this.session.post(url, {username, password});
-            this.cookie.setCookie("token", data.key, {"max-age": 2592000})
-            this.setHeader(data.key)
+            this.setHeader(data.key);
+            this.saveToken(data.key);
             return data;
         } catch ({response}) {
-            throw {
-                data: response.data, status: response.status, statusText: response.statusText
-            }
+            throw {data: response.data, status: response.status, statusText: response.statusText};
         }
     }
 
-    logout(): void {
+    /**
+     * Метод производит логаут для пользователя. Делает запрос на сервер для выхода пользователя,
+     * Так же производит удаления токена из хедера и локал сторейдж.
+     */
+    async logout(): Promise<object> {
+        const logoutPath = 'logout';
+        const url = this.urlGenerate(this.authPath, logoutPath);
+        try {
+            const promise = this.session.post(url);
+            this.deleteHeader();
+            this.deleteToken();
+            const response = await promise;
+            return {status: response.data, data: response.data};
+        } catch ({response}) {
+            throw {data: response.data, status: response.status, statusText: response.statusText};
+        }
     }
 
-    setHeader(token: string): void {
+    /**
+     * Метод устанавливает токен в заголовок запросов сессии.
+     * @param token - токен который будет добален в сессию
+     */
+    private setHeader(token: string): void {
         this.session.defaults.headers.common['Authorization'] = `Token ${token}`;
     }
 
-    deleteHeader(): void {
+    /**
+     * Метод удаляет токен из заголовков сессии.
+     */
+    private deleteHeader(): void {
         delete (this.session.defaults.headers.common['Authorization']);
+    }
+
+    /**
+     * Метод сохраняет токен в локал сторейдже.
+     * @param token - токен для сохранения
+     */
+    private saveToken(token: string): void {
+        localStorage.setItem(this.TOKEN, token);
+    }
+
+    /**
+     * Метод удаляет токен из локал сторейджа.
+     */
+    private deleteToken(): void {
+        localStorage.removeItem(this.TOKEN);
+    }
+
+    /**
+     * Метод производит проверку есть ли токен в локал сторайдже клиента.
+     */
+    hasToken(): boolean {
+        return Boolean(localStorage.getItem(this.TOKEN));
     }
 }
