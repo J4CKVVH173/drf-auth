@@ -1,13 +1,15 @@
 import {Auth, IAuthConfig} from "./types";
 import {AxiosInstance} from 'axios';
 import Communicate from "communicate-api";
-import {IUserConfig} from "communicate-api/build/src/communicate";
+import {LocalStorage} from "./utils/LocalStorage";
+import {Headers} from "./utils/Headers";
 
 export default class AuthToken extends Auth {
-    private TOKEN = 'Token';
     readonly authPath: string;
 
     session: AxiosInstance;
+    headers: Headers;
+    localStorage: LocalStorage;
 
     constructor(authConfig?: IAuthConfig) {
         super();
@@ -16,10 +18,14 @@ export default class AuthToken extends Auth {
         } else {
             this.authPath = 'rest-auth';
         }
+
         this.session = new Communicate(authConfig ? authConfig.axiosConfig : undefined).session;
+        this.localStorage = new LocalStorage();
+        this.headers = new Headers(this.session);
+
         // проверяем, если уже есть токен, то устанавливаем его
-        if (this.hasToken()) {
-            this.setHeader((localStorage.getItem(this.TOKEN) as string))
+        if (this.localStorage.hasToken()) {
+            this.headers.setTokenHeader((this.localStorage.getToken() as string))
         }
     }
 
@@ -34,8 +40,8 @@ export default class AuthToken extends Auth {
         const url = this.urlGenerate(this.authPath, loginPath);
         try {
             const {data} = await this.session.post(url, {username, password});
-            this.setHeader(data.key);
-            this.saveToken(data.key);
+            this.headers.setTokenHeader(data.key);
+            this.localStorage.saveToken(data.key);
             return data;
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
@@ -56,45 +62,8 @@ export default class AuthToken extends Auth {
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         } finally {
-            this.deleteHeader();
-            this.deleteToken();
+            this.headers.deleteTokenHeader();
+            this.localStorage.deleteToken();
         }
-    }
-
-    /**
-     * Метод устанавливает токен в заголовок запросов сессии.
-     * @param token - токен который будет добален в сессию
-     */
-    private setHeader(token: string): void {
-        this.session.defaults.headers.common['Authorization'] = `Token ${token}`;
-    }
-
-    /**
-     * Метод удаляет токен из заголовков сессии.
-     */
-    private deleteHeader(): void {
-        delete (this.session.defaults.headers.common['Authorization']);
-    }
-
-    /**
-     * Метод сохраняет токен в локал сторейдже.
-     * @param token - токен для сохранения
-     */
-    private saveToken(token: string): void {
-        localStorage.setItem(this.TOKEN, token);
-    }
-
-    /**
-     * Метод удаляет токен из локал сторейджа.
-     */
-    private deleteToken(): void {
-        localStorage.removeItem(this.TOKEN);
-    }
-
-    /**
-     * Метод производит проверку есть ли токен в локал сторайдже клиента.
-     */
-    hasToken(): boolean {
-        return Boolean(localStorage.getItem(this.TOKEN));
     }
 }
