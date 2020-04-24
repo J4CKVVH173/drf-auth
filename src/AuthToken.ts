@@ -11,7 +11,11 @@ export default class AuthToken extends Auth {
 
     constructor(authConfig?: IAuthConfig) {
         super();
-        this.authPath = (authConfig as IAuthConfig).authPath || 'rest-auth';
+        if (authConfig) {
+            this.authPath = authConfig.authPath || 'rest-auth';
+        } else {
+            this.authPath = 'rest-auth';
+        }
         this.session = new Communicate(authConfig ? authConfig.axiosConfig : undefined).session;
         // проверяем, если уже есть токен, то устанавливаем его
         if (this.hasToken()) {
