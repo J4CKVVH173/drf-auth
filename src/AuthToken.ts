@@ -47,12 +47,13 @@ export default class AuthToken extends Auth {
         const url = this.urlGenerate(this.authPath, logoutPath);
         try {
             const promise = this.session.post(url);
-            this.deleteHeader();
-            this.deleteToken();
             const response = await promise;
             return {status: response.data, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
+        } finally {
+            this.deleteHeader();
+            this.deleteToken();
         }
     }
 
