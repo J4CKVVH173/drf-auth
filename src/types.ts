@@ -15,6 +15,7 @@ export abstract class Auth {
     }
 }
 
-export interface IAuthConfig extends IUserConfig {
+export interface IAuthConfig {
     authPath?: string;
+    axiosConfig?: IUserConfig;
 }

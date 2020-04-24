@@ -1,6 +1,7 @@
 import {Auth, IAuthConfig} from "./types";
 import {AxiosInstance} from 'axios';
 import Communicate from "communicate-api";
+import {IUserConfig} from "communicate-api/build/src/communicate";
 
 export default class AuthToken extends Auth {
     private TOKEN = 'Token';
@@ -10,8 +11,8 @@ export default class AuthToken extends Auth {
 
     constructor(authConfig?: IAuthConfig) {
         super();
-        this.authPath = authConfig?.authPath || 'rest-auth';
-        this.session = new Communicate(authConfig).session;
+        this.authPath = (authConfig as IAuthConfig).authPath || 'rest-auth';
+        this.session = new Communicate(authConfig ? authConfig.axiosConfig : undefined).session;
         // проверяем, если уже есть токен, то устанавливаем его
         if (this.hasToken()) {
             this.setHeader((localStorage.getItem(this.TOKEN) as string))
