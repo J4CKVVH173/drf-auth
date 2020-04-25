@@ -108,3 +108,6 @@ dist
 src
 !build/src
 tsconfig.json
+.babelrc
+index.ts
+.idea
