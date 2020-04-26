@@ -1,3 +1,3 @@
-import AuthToken from "./src/AuthToken";
+import DRFAuth from "./src/DRFAuth";
 
-export default AuthToken;
+export default DRFAuth;
