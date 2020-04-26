@@ -1,10 +1,15 @@
 import {Auth, IAuthConfig} from "./types";
 import {AxiosInstance} from 'axios';
+
 import Communicate from "communicate-api";
+
 import {LocalStorage} from "./utils/LocalStorage";
 import {Headers} from "./utils/Headers";
 
-export default class AuthToken extends Auth {
+/**
+ * Класс предоставляет интерфейс взаимодействия с библиотекой `django-rest-auth`.
+ */
+export default class DRFAuth extends Auth {
     readonly authPath: string;
 
     session: AxiosInstance;
@@ -56,14 +61,27 @@ export default class AuthToken extends Auth {
         const logoutPath = 'logout';
         const url = this.urlGenerate(this.authPath, logoutPath);
         try {
-            const promise = this.session.post(url);
-            const response = await promise;
+            const response = await this.session.post(url);
             return {status: response.data, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         } finally {
             this.headers.deleteTokenHeader();
             this.localStorage.deleteToken();
+        }
+    }
+
+    /**
+     * Метод для получения информации о пользователи по токену. (Токен должен быть уже установлен в заголовке)
+     */
+    async user(): Promise<object> {
+        const userPath = 'user';
+        const url = this.urlGenerate(this.authPath, userPath);
+        try {
+            const response = await this.session.get(url);
+            return {status: response.data, data: response.data};
+        } catch ({response}) {
+            throw {data: response.data, status: response.status, statusText: response.statusText};
         }
     }
 }
