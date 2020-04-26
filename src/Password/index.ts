@@ -26,7 +26,7 @@ export class Password implements IPassword {
         const url = this.url.urlPathGenerate(this.authPath, this.passwordPath, changePath);
         try {
             const response = await this.session.post(url, {'new_password1': newPass1, 'new_password2': newPass2});
-            return {status: response.data, data: response.data};
+            return {status: response.status, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         }
@@ -41,7 +41,7 @@ export class Password implements IPassword {
         const url = this.url.urlPathGenerate(this.authPath, this.passwordPath, resetPath);
         try {
             const response = await this.session.post(url, {email});
-            return {status: response.data, data: response.data};
+            return {status: response.status, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         }
@@ -65,7 +65,7 @@ export class Password implements IPassword {
                 'new_password1': newPass1,
                 'new_password2': newPass2
             });
-            return {status: response.data, data: response.data};
+            return {status: response.status, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         }

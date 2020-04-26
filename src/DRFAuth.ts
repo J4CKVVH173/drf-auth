@@ -69,7 +69,7 @@ export default class DRFAuth extends Auth {
         const url = this.url.urlPathGenerate(this.authPath, logoutPath);
         try {
             const response = await this.session.post(url);
-            return {status: response.data, data: response.data};
+            return {status: response.status, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         } finally {
@@ -86,7 +86,7 @@ export default class DRFAuth extends Auth {
         const url = this.url.urlPathGenerate(this.authPath, userPath);
         try {
             const response = await this.session.get(url);
-            return {status: response.data, data: response.data};
+            return {status: response.status, data: response.data};
         } catch ({response}) {
             throw {data: response.data, status: response.status, statusText: response.statusText};
         }
