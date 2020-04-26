@@ -5,6 +5,8 @@ import Communicate from "communicate-api";
 
 import {LocalStorage} from "./utils/LocalStorage";
 import {Headers} from "./utils/Headers";
+import {Url} from "./utils/Url";
+import {Password} from "./Password";
 
 /**
  * Класс предоставляет интерфейс взаимодействия с библиотекой `django-rest-auth`.
@@ -12,9 +14,12 @@ import {Headers} from "./utils/Headers";
 export default class DRFAuth extends Auth {
     readonly authPath: string;
 
-    session: AxiosInstance;
-    headers: Headers;
-    localStorage: LocalStorage;
+    readonly session: AxiosInstance;
+    readonly password: Password;
+
+    private headers: Headers;
+    private localStorage: LocalStorage;
+    private url: Url;
 
     constructor(authConfig?: IAuthConfig) {
         super();
@@ -27,6 +32,8 @@ export default class DRFAuth extends Auth {
         this.session = new Communicate(authConfig ? authConfig.axiosConfig : undefined).session;
         this.localStorage = new LocalStorage();
         this.headers = new Headers(this.session);
+        this.url = new Url();
+        this.password = new Password({session: this.session, authPath: this.authPath});
 
         // проверяем, если уже есть токен, то устанавливаем его
         if (this.localStorage.hasToken()) {
@@ -42,7 +49,7 @@ export default class DRFAuth extends Auth {
      */
     async login(username: string, password: string): Promise<object> {
         const loginPath = 'login';
-        const url = this.urlGenerate(this.authPath, loginPath);
+        const url = this.url.urlPathGenerate(this.authPath, loginPath);
         try {
             const {data} = await this.session.post(url, {username, password});
             this.headers.setTokenHeader(data.key);
@@ -59,7 +66,7 @@ export default class DRFAuth extends Auth {
      */
     async logout(): Promise<object> {
         const logoutPath = 'logout';
-        const url = this.urlGenerate(this.authPath, logoutPath);
+        const url = this.url.urlPathGenerate(this.authPath, logoutPath);
         try {
             const response = await this.session.post(url);
             return {status: response.data, data: response.data};
@@ -76,7 +83,7 @@ export default class DRFAuth extends Auth {
      */
     async user(): Promise<object> {
         const userPath = 'user';
-        const url = this.urlGenerate(this.authPath, userPath);
+        const url = this.url.urlPathGenerate(this.authPath, userPath);
         try {
             const response = await this.session.get(url);
             return {status: response.data, data: response.data};

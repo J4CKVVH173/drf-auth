@@ -5,15 +5,6 @@ export abstract class Auth {
     abstract logout(): Promise<object>;
 
     abstract user(): Promise<object>;
-
-    urlGenerate(...rest: string[]): string {
-        let path: string = '';
-        for (const pathPart of rest) {
-            if (pathPart.slice(-1) === '/') path += pathPart;
-            else path += pathPart + '/';
-        }
-        return path;
-    }
 }
 
 export interface IAuthConfig {
