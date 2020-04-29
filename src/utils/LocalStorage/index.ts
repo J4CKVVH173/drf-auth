@@ -35,7 +35,7 @@ export class LocalStorage implements ILocalStorage {
     /**
      * Метод проверяет наличие токена в localStorage.
      */
-    hasToken(): boolean {
+    checkToken(): boolean {
         return Boolean(localStorage.getItem(this.TOKEN));
     }
 }

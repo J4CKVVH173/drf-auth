@@ -7,5 +7,5 @@ export interface ILocalStorage {
 
     getToken(): string | null;
 
-    hasToken(): boolean;
+    checkToken(): boolean;
 }

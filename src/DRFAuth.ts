@@ -36,7 +36,7 @@ export default class DRFAuth extends Auth {
         this.password = new Password({session: this.session, authPath: this.authPath});
 
         // проверяем, если уже есть токен, то устанавливаем его
-        if (this.localStorage.hasToken()) {
+        if (this.localStorage.checkToken()) {
             this.headers.setTokenHeader((this.localStorage.getToken() as string))
         }
     }
